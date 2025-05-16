@@ -1,0 +1,265 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Product Backend API",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:8081"
+      }
+    ],
+    "paths": {
+      "/api/categories": {
+        "get": {
+          "summary": "Get all categories",
+          "description": "Lấy danh sách tất cả các danh mục sản phẩm.",
+          "responses": {
+            "200": {
+              "description": "Danh sách các danh mục.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": { "type": "boolean" },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "category_name": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/products/category/{categoryId}": {
+        "get": {
+          "summary": "Get products by category",
+          "description": "Lấy danh sách sản phẩm theo categoryId.",
+          "parameters": [
+            {
+              "name": "categoryId",
+              "in": "path",
+              "required": true,
+              "schema": { "type": "integer" },
+              "description": "ID của danh mục sản phẩm"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Danh sách sản phẩm theo categoryId.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": { "type": "boolean" },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" },
+                            "description": { "type": "string" },
+                            "product_image": { "type": "string" },
+                            "ProductItems": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": { "type": "integer" },
+                                  "SKU": { "type": "string" },
+                                  "qty_in_stock": { "type": "integer" },
+                                  "price": { "type": "number" }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Category not found"
+            }
+          }
+        }
+      },
+      "/api/products/search": {
+        "get": {
+          "summary": "Search products",
+          "description": "Tìm kiếm sản phẩm với nhiều bộ lọc, từ khóa, phân trang và sắp xếp.",
+          "parameters": [
+            { "name": "q", "in": "query", "schema": { "type": "string" }, "description": "Từ khóa tìm kiếm (tên, mô tả, SKU)" },
+            { "name": "categoryId", "in": "query", "schema": { "type": "integer" }, "description": "ID danh mục" },
+            { "name": "minPrice", "in": "query", "schema": { "type": "number" }, "description": "Giá tối thiểu" },
+            { "name": "maxPrice", "in": "query", "schema": { "type": "number" }, "description": "Giá tối đa" },
+            { "name": "inStock", "in": "query", "schema": { "type": "boolean" }, "description": "Chỉ lấy sản phẩm còn hàng" },
+            { "name": "storeId", "in": "query", "schema": { "type": "integer" }, "description": "ID cửa hàng" },
+            { "name": "sortBy", "in": "query", "schema": { "type": "string", "enum": ["name", "price", "qty_in_stock"] }, "description": "Trường sắp xếp (name, price, qty_in_stock)" },
+            { "name": "sortOrder", "in": "query", "schema": { "type": "string", "enum": ["ASC", "DESC"] }, "description": "Thứ tự sắp xếp (ASC, DESC)" },
+            { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 }, "description": "Trang hiện tại" },
+            { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 }, "description": "Số lượng sản phẩm mỗi trang" }
+          ],
+          "responses": {
+            "200": {
+              "description": "Danh sách sản phẩm tìm được.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": { "type": "boolean" },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" },
+                            "description": { "type": "string" },
+                            "product_image": { "type": "string" },
+                            "category_id": { "type": "integer" },
+                            "ProductItems": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": { "type": "integer" },
+                                  "SKU": { "type": "string" },
+                                  "qty_in_stock": { "type": "integer" },
+                                  "price": { "type": "number" }
+                                }
+                              }
+                            },
+                            "ProductCategory": {
+                              "type": "object",
+                              "properties": {
+                                "id": { "type": "integer" },
+                                "category_name": { "type": "string" }
+                              }
+                            },
+                            "Store": {
+                              "type": "object",
+                              "properties": {
+                                "id": { "type": "integer" },
+                                "name": { "type": "string" }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "pagination": {
+                        "type": "object",
+                        "properties": {
+                          "total": { "type": "integer" },
+                          "page": { "type": "integer" },
+                          "limit": { "type": "integer" },
+                          "totalPages": { "type": "integer" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/orders/orders": {
+        "post": {
+          "summary": "Tạo đơn hàng mới và xử lý thanh toán (COD, VNPAY)",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": { "type": "integer" },
+                    "address_id": { "type": "integer" },
+                    "payment_type_id": { "type": "integer" },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "product_item_id": { "type": "integer" },
+                          "quantity": { "type": "integer" },
+                          "price": { "type": "number" }
+                        }
+                      }
+                    }
+                  },
+                  "required": ["user_id", "address_id", "payment_type_id", "items"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Tạo đơn hàng thành công",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "order_id": { "type": "integer" },
+                          "status": { "type": "string", "enum": ["processing"] }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "success": { "type": "boolean" },
+                          "order_id": { "type": "integer" },
+                          "status": { "type": "string", "enum": ["pending_payment"] },
+                          "paymentUrl": { "type": "string" }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/payments/vnpay/callback": {
+        "get": {
+          "summary": "Callback xác nhận thanh toán từ VNPAY",
+          "parameters": [
+            { "name": "vnp_TxnRef", "in": "query", "schema": { "type": "string" }, "description": "Mã đơn hàng" },
+            { "name": "vnp_ResponseCode", "in": "query", "schema": { "type": "string" }, "description": "Mã kết quả thanh toán" },
+            { "name": "vnp_SecureHash", "in": "query", "schema": { "type": "string" }, "description": "Chữ ký xác thực" }
+          ],
+          "responses": {
+            "200": {
+              "description": "Kết quả xác nhận thanh toán",
+              "content": {
+                "text/plain": {
+                  "schema": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
