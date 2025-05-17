@@ -1,3 +1,4 @@
+const sequelize = require('../config/db');
 const User = require('./User');
 const Admin = require('./Admin');
 const Country = require('./Country');
@@ -66,6 +67,7 @@ Voucher.hasMany(UserVoucher, { foreignKey: 'voucher_id' });
 PaymentType.hasMany(UserPaymentMethod, { foreignKey: 'payment_type_id' });
 
 module.exports = {
+    sequelize,
     User,
     Admin,
     Country,

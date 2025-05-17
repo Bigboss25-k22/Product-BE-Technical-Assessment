@@ -179,9 +179,10 @@
           }
         }
       },
-      "/api/orders/orders": {
+      "/api/orders": {
         "post": {
           "summary": "Tạo đơn hàng mới và xử lý thanh toán (COD, VNPAY)",
+          "description": "Tạo đơn hàng mới, cập nhật số lượng tồn kho và xử lý thanh toán. Hỗ trợ thanh toán COD và VNPAY.",
           "requestBody": {
             "required": true,
             "content": {
@@ -189,22 +190,47 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "user_id": { "type": "integer" },
-                    "address_id": { "type": "integer" },
-                    "payment_type_id": { "type": "integer" },
+                    "user_id": { 
+                      "type": "integer",
+                      "description": "ID của người dùng đặt hàng"
+                    },
+                    "shipping_address": { 
+                      "type": "integer",
+                      "description": "ID của địa chỉ giao hàng"
+                    },
+                    "payment_method_id": { 
+                      "type": "integer",
+                      "description": "ID của phương thức thanh toán (1: COD, 2: VNPAY)"
+                    },
+                    "shipping_method_id": { 
+                      "type": "integer",
+                      "description": "ID của phương thức vận chuyển"
+                    },
                     "items": {
                       "type": "array",
+                      "description": "Danh sách sản phẩm trong đơn hàng",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "product_item_id": { "type": "integer" },
-                          "quantity": { "type": "integer" },
-                          "price": { "type": "number" }
-                        }
+                          "product_item_id": { 
+                            "type": "integer",
+                            "description": "ID của sản phẩm"
+                          },
+                          "qty": { 
+                            "type": "integer",
+                            "description": "Số lượng mua",
+                            "minimum": 1
+                          },
+                          "price": { 
+                            "type": "number",
+                            "description": "Giá của sản phẩm"
+                          }
+                        },
+                        "required": ["product_item_id", "qty", "price"]
                       }
                     }
                   },
-                  "required": ["user_id", "address_id", "payment_type_id", "items"]
+                  "required": ["user_id", "shipping_address", "payment_method_id", "shipping_method_id", "items"]
                 }
               }
             }
@@ -219,21 +245,88 @@
                       {
                         "type": "object",
                         "properties": {
-                          "success": { "type": "boolean" },
-                          "order_id": { "type": "integer" },
-                          "status": { "type": "string", "enum": ["processing"] }
+                          "success": { 
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "order_id": { 
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "status": { 
+                            "type": "string",
+                            "enum": ["processing"],
+                            "description": "Trạng thái đơn hàng khi thanh toán COD"
+                          }
                         }
                       },
                       {
                         "type": "object",
                         "properties": {
-                          "success": { "type": "boolean" },
-                          "order_id": { "type": "integer" },
-                          "status": { "type": "string", "enum": ["pending_payment"] },
-                          "paymentUrl": { "type": "string" }
+                          "success": { 
+                            "type": "boolean",
+                            "example": true
+                          },
+                          "order_id": { 
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "status": { 
+                            "type": "string",
+                            "enum": ["pending_payment"],
+                            "description": "Trạng thái đơn hàng khi thanh toán VNPAY"
+                          },
+                          "paymentUrl": { 
+                            "type": "string",
+                            "description": "URL thanh toán VNPAY"
+                          }
                         }
                       }
                     ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Lỗi dữ liệu đầu vào",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": { 
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "message": { 
+                        "type": "string",
+                        "example": "Invalid payment method"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Lỗi server",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": { 
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "message": { 
+                        "type": "string",
+                        "example": "Internal server error"
+                      },
+                      "error": { 
+                        "type": "string",
+                        "description": "Chi tiết lỗi"
+                      }
+                    }
                   }
                 }
               }

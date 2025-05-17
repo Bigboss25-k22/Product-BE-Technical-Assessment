@@ -1,7 +1,7 @@
 const express = require('express');
 const productRouter = require("./productRoutes");
 const categoryRoutes = require('./categoryRoutes');
-const orderRoutes = require('./oderController');
+const orderRoutes = require('./orderRoutes');
 const paymentRoutes = require('./paymentRoutes');
 
 function route(app) {

@@ -1,27 +1,35 @@
 const { ProductCategory } = require('../models');
+const AppError = require('../utils/AppError');
+const catchAsync = require('../utils/catchAsync');
 
-// Fetches a list of all product categories available in the e-commerce platform
-const getAllCategories = async (req, res) => {
-    try {
-        const categories = await ProductCategory.findAll({
-            attributes: ['id', 'category_name'],
-            order: [['category_name', 'ASC']]
-        });
+// Get all categories
+const getAllCategories = catchAsync(async (req, res, next) => {
+    const categories = await ProductCategory.findAll({
+        attributes: ['id', 'category_name'],
+        order: [['category_name', 'ASC']]
+    });
 
-        res.json({
-            success: true,
-            data: categories
-        });
-    } catch (error) {
-        console.error('Error fetching categories:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message
-        });
+    res.status(200).json({
+        success: true,
+        data: categories
+    });
+});
+
+// Get single category
+const getCategory = catchAsync(async (req, res, next) => {
+    const category = await ProductCategory.findByPk(req.params.id);
+
+    if (!category) {
+        return next(new AppError('Category not found', 404));
     }
-};
+
+    res.status(200).json({
+        success: true,
+        data: category
+    });
+});
 
 module.exports = {
-    getAllCategories
+    getAllCategories,
+    getCategory
 };
